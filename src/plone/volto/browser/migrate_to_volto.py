@@ -9,6 +9,7 @@ from plone.app.textfield.value import RichTextValue
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.volto.browser.migrate_richtext import get_blocks_from_richtext
 from plone.volto.browser.migrate_richtext import migrate_richtext_to_blocks
+from plone.volto.content import FolderishDocument
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.relationhelper import restore_relations
 from Products.CMFPlone.utils import get_installer
@@ -277,6 +278,13 @@ def make_document(obj, slate=True):
         # Hack. We have some content stupidly named 'text' which messes up here
         striptext = True
         if isinstance(text, Folder):
+            striptext = False
+        if isinstance(text, FolderishDocument):
+            striptext = False
+            
+        try:
+            text.strip()
+        except AttributeError:
             striptext = False
         
         if striptext and text and text.strip():
