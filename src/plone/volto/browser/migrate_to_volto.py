@@ -307,19 +307,19 @@ def make_document(obj, service_url="http://localhost:5000/html", slate=True):
         text = getattr(obj.aq_base, "text", None)
         if isinstance(text, RichTextValue):
             text = text.raw
-        
+
         # Hack. We have some content stupidly named 'text' which messes up here
         striptext = True
         if isinstance(text, Folder):
             striptext = False
         if isinstance(text, FolderishDocument):
             striptext = False
-            
+
         try:
             text.strip()
         except AttributeError:
             striptext = False
-        
+
         if striptext and text and text.strip():
             # We have Richtext. Get the block-data for it
             text_blocks, uuids = get_blocks_from_richtext(
