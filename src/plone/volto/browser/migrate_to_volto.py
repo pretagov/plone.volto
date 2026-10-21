@@ -2,6 +2,7 @@ from Acquisition import aq_base
 from logging import getLogger
 from plone import api
 from plone.app.contenttypes.behaviors.collection import ICollection
+from plone.app.contenttypes.content import Folder
 from plone.app.contenttypes.utils import get_old_class_name_string
 from plone.app.contenttypes.utils import get_portal_type_name_string
 from plone.app.linkintegrity.utils import referencedRelationship
@@ -11,6 +12,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.volto.bbb import get_installer
 from plone.volto.browser.migrate_richtext import get_blocks_from_richtext
 from plone.volto.browser.migrate_richtext import migrate_richtext_to_blocks
+from plone.volto.content import FolderishDocument
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2Base
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.relationhelper import restore_relations
@@ -305,7 +307,20 @@ def make_document(obj, service_url="http://localhost:5000/html", slate=True):
         text = getattr(obj.aq_base, "text", None)
         if isinstance(text, RichTextValue):
             text = text.raw
-        if text and text.strip():
+
+        # Hack. We have some content stupidly named 'text' which messes up here
+        striptext = True
+        if isinstance(text, Folder):
+            striptext = False
+        if isinstance(text, FolderishDocument):
+            striptext = False
+
+        try:
+            text.strip()
+        except AttributeError:
+            striptext = False
+
+        if striptext and text and text.strip():
             # We have Richtext. Get the block-data for it
             text_blocks, uuids = get_blocks_from_richtext(
                 text, service_url=service_url, slate=slate

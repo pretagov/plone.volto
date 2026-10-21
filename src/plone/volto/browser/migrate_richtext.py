@@ -145,7 +145,7 @@ def get_blocks_from_richtext(
     }
     payload = {"html": text}
     if not slate:
-        payload["converter"] = "draftjs"
+        payload["converter"] = "slate"
     r = requests.post(service_url, headers=headers, json=payload)
     r.raise_for_status()
     slate_data = r.json()
